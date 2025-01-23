@@ -22,6 +22,6 @@ VCC          →   5V/3.3V
 
 GND          →   GND
 
-RX           →   GPIO 16 (UART RX)
+TX           →   GPIO 16 (UART RX)
 
-TX           →   GPIO 17 (UART TX)
+RX           →   GPIO 17 (UART TX)
