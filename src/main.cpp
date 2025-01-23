@@ -40,26 +40,7 @@ const uint8_t SWITCH_THRESHOLDS[8] = {
     0x40    // Switch 8
 };
 
-// static void processPacket() {
-//     if (rxbuf[0] == CRSF_ADDRESS_FLIGHT_CONTROLLER && 
-//         rxbuf[2] == CRSF_FRAMETYPE_RC_CHANNELS_PACKED) {
-        
-//         gamepad.sw = 0;
-//         gamepad.ch[0] = ((rxbuf[3] | rxbuf[4] << 8) & 0x07ff) << 5;
-//         gamepad.ch[1] = ((rxbuf[4] >> 3 | rxbuf[5] << 5) & 0x07ff) << 5;
-//         gamepad.ch[2] = ((rxbuf[5] >> 6 | rxbuf[6] << 2 | rxbuf[7] << 10) & 0x07ff) << 5;
-//         gamepad.ch[3] = ((rxbuf[7] >> 1 | rxbuf[8] << 7) & 0x07ff) << 5;
-        
-//         if (((rxbuf[8] >> 4 | rxbuf[9] << 4) & 0x07ff) > 0x3ff) {
-//             gamepad.sw |= 0x01;
-//         }
-        
-//         gamepad.ch[4] = ((rxbuf[9] >> 7 | rxbuf[10] << 1 | rxbuf[11] << 9) & 0x07ff) << 5;
-//         gamepad.ch[5] = ((rxbuf[11] >> 2 | rxbuf[12] << 6) & 0x07ff) << 5;
-        
-//         frameReady = true;
-//     }
-// }
+
 
 static void processPacket() {
     if (rxbuf[0] == CRSF_ADDRESS_FLIGHT_CONTROLLER && 
@@ -147,21 +128,6 @@ void setup() {
     
     Serial.println("ESP32-S2 CRSF to USB Joystick started");
 }
-
-// void loop() {
-//     if (frameReady && (micros() - lastFrameTime) >= 2000) {  // Limit to 500Hz max
-//         Joystick.setXAxis(gamepad.ch[0]);
-//         Joystick.setYAxis(gamepad.ch[1]);
-//         Joystick.setZAxis(gamepad.ch[2]);
-//         Joystick.setRxAxis(gamepad.ch[3]);
-//         Joystick.setRyAxis(gamepad.ch[4]);
-//         Joystick.setRzAxis(gamepad.ch[5]);
-//         Joystick.sendState();
-        
-//         lastFrameTime = micros();
-//         frameReady = false;
-//     }
-// }
 
 void loop() {
     if (frameReady && (micros() - lastFrameTime) >= 2000) {
