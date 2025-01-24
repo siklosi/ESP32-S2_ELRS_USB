@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRSF to USB Joystick/Keyboard Adapter Config</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            max-width: 800px;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        select {
+            width: 100%;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: block;
+            margin: 0 auto;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .popup-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+        }
+    </style>
+</head>
+<body>
+    <h1>CRSF to USB Joystick/Keyboard Adapter Config</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Channel</th>
+                <th>Assignment</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <button onclick="saveConfig()">Save Config</button>
+
+    <div id="popup" class="popup">
+        <div class="popup-content">
+            <p id="popup-message"></p>
+            <button onclick="closePopup()">OK</button>
+        </div>
+    </div>
+
+    <script>
+        const options = [
+        'None', 
+        'XAxis', 'YAxis', 'ZAxis', 
+        'RxAxis', 'RyAxis', 'RzAxis', 
+        'Throttle', 'Rudder'
+    ];
+
+    // Add buttons
+    for (let i = 1; i <= 32; i++) {
+        options.push(`Button ${i}`);
+    }
+
+    // Add keyboard keys
+    const keyboardKeys = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`+/*?-=[]\\;\',./';
+    for (let key of keyboardKeys) {
+        options.push(`Key ${key}`);
+    }
+
+        const tableBody = document.querySelector('tbody');
+        const assignments = {};
+
+        // Fetch and populate existing configuration
+        fetch('/config')
+            .then(response => response.json())
+            .then(config => {
+                for (let i = 0; i <= 15; i++) {
+                    const row = tableBody.insertRow();
+                    const channelCell = row.insertCell();
+                    const selectCell = row.insertCell();
+                    channelCell.textContent = `Channel ${i+1}`;
+
+                    const select = document.createElement('select');
+                    select.id = `channel-${i}`;
+                    options.forEach(option => {
+                        const opt = document.createElement('option');
+                        opt.value = option;
+                        opt.text = option;
+                        select.appendChild(opt);
+                    });
+
+                    // Set existing configuration if available
+                    const existingAssignment = config[`channel-${i}`] || 'None';
+                    select.value = existingAssignment;
+                    assignments[`channel-${i}`] = existingAssignment;
+
+                    select.addEventListener('change', (event) => {
+                        const selectedValue = event.target.value;
+                        // Check for duplicate assignments
+                        for (const channel in assignments) {
+                            if (assignments[channel] === selectedValue && channel !== `channel-${i}` && selectedValue !== 'None') {
+                                const popupMessage = document.getElementById('popup-message');
+                                const popup = document.getElementById('popup');
+                                popupMessage.textContent = `${selectedValue} is already assigned to ${channel.replace('channel-','Channel ')}.`;
+                                popup.style.display = 'block';
+                                event.target.value = assignments[`channel-${i}`];
+                                return;
+                            }
+                        }
+                        assignments[`channel-${i}`] = selectedValue;
+                    });
+                    selectCell.appendChild(select);
+                }
+            });
+
+        function saveConfig() {
+            fetch('/save-config', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(assignments)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Configuration saved successfully!");
+                } else {
+                    alert("Failed to save configuration.");
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("Error saving configuration.");
+            });
+        }
+
+        function closePopup() {
+            document.getElementById('popup').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
