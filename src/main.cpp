@@ -66,7 +66,6 @@ void loadConfig() {
         return;
     }
 
-    // StaticJsonDocument<512> doc;
     JsonDocument doc;
     DeserializationError error = deserializeJson(doc, configFile);
     configFile.close();
@@ -95,7 +94,6 @@ bool saveConfig(const JoystickConfig& config) {
         return false;
     }
 
-    // StaticJsonDocument<512> doc;
     JsonDocument doc;
     for (int i = 0; i < 16; i++) {
         doc[String("channel-" + String(i))] = config.assignments[i];
@@ -111,28 +109,6 @@ bool saveConfig(const JoystickConfig& config) {
     return true;
 }
 
-
-// void mapChannelToJoystick() {
-//     for (int i = 0; i < 16; i++) {
-//         String assignment = currentConfig.assignments[i];
-        
-//         if (assignment == "XAxis") Joystick.setXAxis(gamepad.ch[i]);
-//         else if (assignment == "YAxis") Joystick.setYAxis(gamepad.ch[i]);
-//         else if (assignment == "ZAxis") Joystick.setZAxis(gamepad.ch[i]);
-//         else if (assignment == "RxAxis") Joystick.setRxAxis(gamepad.ch[i]);
-//         else if (assignment == "RyAxis") Joystick.setRyAxis(gamepad.ch[i]);
-//         else if (assignment == "RzAxis") Joystick.setRzAxis(gamepad.ch[i]);
-//         else if (assignment == "Throttle") Joystick.setThrottle(gamepad.ch[i]);
-//         else if (assignment == "Rudder") Joystick.setRudder(gamepad.ch[i]);
-//         else if (assignment.startsWith("Button")) {
-//             int buttonNum = assignment.substring(7).toInt();
-//             if (buttonNum >= 1 && buttonNum <= 32) {
-//                 bool buttonState = gamepad.ch[i] > 52428 || gamepad.ch[i] < 13107;
-//                 Joystick.setButton(buttonNum-1, buttonState);
-//             }
-//         }
-//     }
-// }
 
 // Map channel assignments to joystick axes/buttons or keyboard
 void mapChannelToJoystick() {
@@ -255,7 +231,6 @@ void setup() {
 
     server.on("/config", HTTP_GET, [](AsyncWebServerRequest *request) {
         AsyncResponseStream *response = request->beginResponseStream("application/json");
-        // StaticJsonDocument<512> doc;
         JsonDocument doc;
         
         for (int i = 0; i < 16; i++) {
